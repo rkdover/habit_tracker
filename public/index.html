@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-height: 100vh;
+    }
+
+    .header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      background: #f0f0f0;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .tab-button.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .add-habit-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .add-habit-form input {
+      flex: 1;
+      min-width: 150px;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .add-habit-form input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .add-habit-form input[type="number"] {
+      flex: 0 0 100px;
+    }
+
+    .add-habit-form label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      cursor: pointer;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+    }
+
+    .add-habit-form input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    .recurring-toggle {
+      padding: 12px 24px;
+      background: #f9f9f9;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+      white-space: nowrap;
+      color: #333;
+    }
+
+    .recurring-toggle.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .recurring-toggle:hover {
+      border-color: #667eea;
+    }
+
+    .add-button {
+      padding: 12px 24px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .add-button:hover {
+      background: #5568d3;
+    }
+
+    .habits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      grid-auto-rows: max-content;
+      gap: 15px;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+      width: 100%;
+    }
+
+    .archived-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .habit-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      aspect-ratio: 1 / 1;
+    }
+
+    .habit-card.due {
+      background: #ff6b6b;
+      color: white;
+    }
+
+    .habit-card.due:hover {
+      background: #ff5252;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
+    }
+
+    .habit-card.done {
+      background: #51cf66;
+      color: white;
+    }
+
+    .habit-card.done:hover {
+      background: #40c057;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(81, 207, 102, 0.3);
+    }
+
+    .habit-content {
+      padding: 15px;
+      cursor: pointer;
+      user-select: none;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .habit-button {
+      border: none;
+      background: none;
+      color: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      width: 100%;
+    }
+
+    .habit-name {
+      font-size: 16px;
+      margin-bottom: 4px;
+      word-break: break-word;
+      font-weight: 600;
+    }
+
+    .habit-meta {
+      font-size: 12px;
+      opacity: 0.8;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .habit-meta span {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .habit-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.3);
+      overflow: hidden;
+    }
+
+    .habit-progress-bar {
+      height: 100%;
+      background: #e74c3c;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .habit-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 2;
+    }
+
+    .habit-edit {
+      position: absolute;
+      top: 8px;
+      right: 40px;
+      background: rgba(0, 0, 0, 0.3);
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 2;
+    }
+
+    .habit-card:hover .habit-delete,
+    .habit-card:hover .habit-edit {
+      opacity: 1;
+    }
+
+    .habit-edit-form {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      color: #333;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 3;
+      border-radius: 12px;
+    }
+
+    .habit-edit-form input {
+      padding: 8px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .habit-edit-form input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .habit-edit-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .habit-edit-buttons button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .habit-edit-buttons button.save {
+      background: #667eea;
+      color: white;
+    }
+
+    .habit-edit-buttons button.save:hover {
+      background: #5568d3;
+    }
+
+    .habit-edit-buttons button.cancel {
+      background: #ddd;
+      color: #333;
+    }
+
+    .habit-edit-buttons button.cancel:hover {
+      background: #ccc;
+    }
+
+    .archived-item {
+      background: white;
+      border-radius: 8px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      opacity: 0.8;
+    }
+
+    .archived-item-info {
+      flex: 1;
+    }
+
+    .archived-item-name {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .archived-item-meta {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .archived-item-button {
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 0.3s;
+      margin-left: 10px;
+    }
+
+    .archived-item-button:hover {
+      background: #5568d3;
+    }
+      text-align: center;
+      color: #999;
+      padding: 40px;
+      font-size: 16px;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar-thumb {
+      background: #ddd;
+      border-radius: 3px;
+    }
+
+    .habits-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .habits-grid::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .habits-grid::-webkit-scrollbar-thumb {
+      background: #ddd;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="header">
+        <h1>🎯 Habit Tracker</h1>
+        
+        <div class="tabs">
+          <button 
+            class="tab-button" 
+            :class="{ active: showArchived === false }"
+            @click="showArchived = false"
+          >
+            Active Habits
+          </button>
+          <button 
+            class="tab-button" 
+            :class="{ active: showArchived === true }"
+            @click="showArchived = true"
+          >
+            Archived ({{ archivedCount }})
+          </button>
+        </div>
+
+        <div v-if="!showArchived" class="add-habit-form">
+          <input 
+            v-model="newHabitName" 
+            type="text" 
+            placeholder="Habit name (e.g., Exercise, Read)"
+            @keyup.enter="addHabit"
+          />
+          <input 
+            v-model.number="newHabitRecurrence" 
+            type="number" 
+            :placeholder="newHabitRecurring ? 'Every X days' : 'Due in X days'"
+            min="1"
+            @keyup.enter="addHabit"
+          />
+          <button 
+            class="recurring-toggle"
+            :class="{ active: newHabitRecurring }"
+            @click.prevent="newHabitRecurring = !newHabitRecurring"
+            type="button"
+          >
+            {{ newHabitRecurring ? 'Recurring' : 'One-time' }}
+          </button>
+          <button @click="addHabit" class="add-button">Add</button>
+        </div>
+      </div>
+
+      <div v-if="displayedHabits.length === 0" class="empty-state">
+        {{ showArchived ? 'No archived habits yet!' : 'Add your first habit to get started!' }}
+      </div>
+
+      <div v-else-if="showArchived" class="archived-list">
+        <div v-for="habit in displayedHabits" :key="habit.id" class="archived-item">
+          <div class="archived-item-info">
+            <div class="archived-item-name">{{ habit.name }}</div>
+            <div class="archived-item-meta">
+              <span v-if="habit.isRecurring">Every {{ habit.recurrence }} day{{ habit.recurrence > 1 ? 's' : '' }}</span>
+              <span v-else>One-time task</span>
+            </div>
+          </div>
+          <button class="archived-item-button" @click="restoreHabit(habit.id)">Restore</button>
+        </div>
+      </div>
+
+      <div v-else class="habits-grid">
+        <div 
+          v-for="habit in displayedHabits" 
+          :key="habit.id"
+          :class="['habit-card', habit.isDue ? 'due' : 'done']"
+          :title="getTimeRemaining(habit)"
+        >
+          <button 
+            class="habit-edit" 
+            @click="startEdit(habit)"
+            title="Edit habit"
+          >e</button>
+          <button 
+            class="habit-delete" 
+            @click="archiveHabit(habit.id)"
+            title="Archive habit"
+          >×</button>
+
+          <div 
+            v-if="editingId !== habit.id"
+            class="habit-content"
+            @click="completeHabit(habit.id)"
+          >
+            <span class="habit-name">{{ habit.name }}</span>
+            <div class="habit-meta">
+              <span v-if="habit.isRecurring">Every {{ habit.recurrence }} day{{ habit.recurrence > 1 ? 's' : '' }}</span>
+              <span v-else>One-time task</span>
+            </div>
+            <div class="habit-progress">
+              <div class="habit-progress-bar" :style="{ width: habit.progress + '%' }"></div>
+            </div>
+          </div>
+
+          <div 
+            v-else
+            class="habit-edit-form"
+            @click.stop
+          >
+            <input 
+              v-model="editingName" 
+              type="text" 
+              placeholder="Habit name"
+              @keyup.enter="saveEdit(habit.id)"
+            />
+            <input 
+              v-model.number="editingRecurrence" 
+              type="number" 
+              placeholder="Every X days"
+              min="1"
+            />
+            <div class="habit-edit-buttons">
+              <button class="save" @click="saveEdit(habit.id)">Save</button>
+              <button class="cancel" @click="cancelEdit">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const habits = ref([]);
+        const newHabitName = ref('');
+        const newHabitRecurrence = ref(null);
+        const newHabitRecurring = ref(true);
+        const showArchived = ref(false);
+        const editingId = ref(null);
+        const editingName = ref('');
+        const editingRecurrence = ref(1);
+
+        const displayedHabits = computed(() => {
+          return habits.value.filter(h => h.archived === (showArchived.value ? 1 : 0));
+        });
+
+        const archivedCount = computed(() => {
+          return habits.value.filter(h => h.archived === 1).length;
+        });
+
+        const notifiedHabits = ref(new Set());
+        const lastCompletedTime = ref(new Map()); // Track last completion time for debouncing
+
+        const requestNotificationPermission = async () => {
+          if ('Notification' in window) {
+            console.log('Notification API available, current permission:', Notification.permission);
+            if (Notification.permission === 'default') {
+              const result = await Notification.requestPermission();
+              console.log('Permission request result:', result);
+            }
+          } else {
+            console.log('Notification API not available');
+          }
+        };
+
+        const sendNotification = (habitName) => {
+          console.log('Attempting to send notification for:', habitName, 'Permission:', Notification?.permission);
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+              const notification = new Notification('✓ Habit Due!', {
+                body: `"${habitName}" is due now`,
+                tag: 'habit-due',
+                requireInteraction: false
+              });
+              console.log('✓ Notification object created successfully');
+            } catch (e) {
+              console.error('Failed to create notification:', e);
+            }
+          } else {
+            console.log('Cannot send notification - API not available or permission not granted');
+          }
+        };
+
+        const fetchHabits = async () => {
+          try {
+            const active = await fetch('/api/habits?archived=false');
+            const archived = await fetch('/api/habits?archived=true');
+            const activeHabits = await active.json();
+            const archivedHabits = await archived.json();
+            habits.value = [...activeHabits, ...archivedHabits];
+
+            // Check for habits that are now due (progress >= 100)
+            activeHabits.forEach(habit => {
+              const isDue = habit.progress >= 100;
+              const wasNotified = notifiedHabits.value.has(habit.id);
+              if (isDue && !wasNotified) {
+                sendNotification(habit.name);
+                notifiedHabits.value.add(habit.id);
+              } else if (!isDue && wasNotified) {
+                notifiedHabits.value.delete(habit.id);
+              }
+            });
+          } catch (err) {
+            console.error('Failed to fetch habits:', err);
+          }
+        };
+
+        const addHabit = async () => {
+          if (!newHabitName.value.trim()) {
+            alert('Please enter a habit name');
+            return;
+          }
+
+          if (!newHabitRecurrence.value || newHabitRecurrence.value < 1) {
+            alert('Please enter a valid recurrence period');
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/habits', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: newHabitName.value,
+                recurrence: newHabitRecurrence.value,
+                isRecurring: newHabitRecurring.value
+              })
+            });
+
+            const newHabit = await response.json();
+            habits.value.push(newHabit);
+            newHabitName.value = '';
+            newHabitRecurrence.value = null;
+            newHabitRecurring.value = true;
+          } catch (err) {
+            console.error('Failed to add habit:', err);
+          }
+        };
+
+        const completeHabit = async (id) => {
+          const now = Date.now();
+          const lastTime = lastCompletedTime.value.get(id);
+          
+          // Debounce: don't register if completed in the last 5 minutes (300,000 ms)
+          if (lastTime && (now - lastTime) < 300000) {
+            return;
+          }
+
+          try {
+            lastCompletedTime.value.set(id, now);
+            const response = await fetch(`/api/habits/${id}/complete`, {
+              method: 'POST'
+            });
+
+            const updatedHabit = await response.json();
+            const index = habits.value.findIndex(h => h.id === id);
+            if (index !== -1) {
+              habits.value[index] = updatedHabit;
+            }
+          } catch (err) {
+            console.error('Failed to complete habit:', err);
+            lastCompletedTime.value.delete(id); // Remove tracking on error
+          }
+        };
+
+        const archiveHabit = async (id) => {
+          if (!confirm('Archive this habit?')) return;
+
+          try {
+            await fetch(`/api/habits/${id}/archive`, { method: 'POST' });
+            habits.value = habits.value.filter(h => h.id !== id);
+          } catch (err) {
+            console.error('Failed to archive habit:', err);
+          }
+        };
+
+        const deleteHabit = async (id) => {
+          if (!confirm('Permanently delete this habit?')) return;
+
+          try {
+            await fetch(`/api/habits/${id}`, { method: 'DELETE' });
+            habits.value = habits.value.filter(h => h.id !== id);
+          } catch (err) {
+            console.error('Failed to delete habit:', err);
+          }
+        };
+
+        const restoreHabit = async (id) => {
+          try {
+            const response = await fetch(`/api/habits/${id}/restore`, { method: 'POST' });
+            const updatedHabit = await response.json();
+            const index = habits.value.findIndex(h => h.id === id);
+            if (index !== -1) {
+              habits.value[index] = updatedHabit;
+            }
+          } catch (err) {
+            console.error('Failed to restore habit:', err);
+          }
+        };
+
+        const startEdit = (habit) => {
+          editingId.value = habit.id;
+          editingName.value = habit.name;
+          editingRecurrence.value = habit.recurrence;
+        };
+
+        const saveEdit = async (id) => {
+          try {
+            const response = await fetch(`/api/habits/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: editingName.value,
+                recurrence: editingRecurrence.value
+              })
+            });
+
+            const updatedHabit = await response.json();
+            const index = habits.value.findIndex(h => h.id === id);
+            if (index !== -1) {
+              habits.value[index] = updatedHabit;
+            }
+            editingId.value = null;
+          } catch (err) {
+            console.error('Failed to update habit:', err);
+          }
+        };
+
+        const cancelEdit = () => {
+          editingId.value = null;
+        };
+
+        const getTimeRemaining = (habit) => {
+          if (habit.progress >= 100) {
+            return 'Due now';
+          }
+          const timeRemainingPercent = 100 - habit.progress;
+          const hoursRemaining = (timeRemainingPercent / 100) * (habit.recurrence * 24);
+          
+          if (hoursRemaining < 1) {
+            const minutesRemaining = Math.round(hoursRemaining * 60);
+            return `Due in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}`;
+          } else if (hoursRemaining < 24) {
+            const roundedHours = Math.round(hoursRemaining * 10) / 10;
+            return `Due in ${roundedHours} hour${roundedHours !== 1 ? 's' : ''}`;
+          } else {
+            const daysRemaining = Math.round(hoursRemaining / 24 * 10) / 10;
+            return `Due in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`;
+          }
+        };
+
+        requestNotificationPermission();
+        fetchHabits();
+        setInterval(fetchHabits, 5000); // Refresh every 5 seconds to update progress bars
+
+        return {
+          habits,
+          newHabitName,
+          newHabitRecurrence,
+          newHabitRecurring,
+          showArchived,
+          displayedHabits,
+          archivedCount,
+          editingId,
+          editingName,
+          editingRecurrence,
+          addHabit,
+          completeHabit,
+          archiveHabit,
+          deleteHabit,
+          restoreHabit,
+          startEdit,
+          saveEdit,
+          cancelEdit,
+          getTimeRemaining
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
