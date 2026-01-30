@@ -734,6 +734,7 @@
           try {
             await fetch(`/api/habits/${id}/archive`, { method: 'POST' });
             habits.value = habits.value.filter(h => h.id !== id);
+            await fetchHabits(); // Immediately refresh habits after archiving
           } catch (err) {
             console.error('Failed to archive habit:', err);
           }
