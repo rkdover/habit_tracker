@@ -39,6 +39,17 @@ A simple full-stack web application for tracking daily habits with visual feedba
 
 4. Open your browser and navigate to `http://localhost:3000`
 
+## Scripts
+
+- **Test Habit**: Quickly add a nearly-due test habit for notification/progress bar testing
+  ```bash
+  npm run test-habit
+  ```
+- **Reset Database**: Remove all habits and logs for a clean slate
+  ```bash
+  npm run reset-db
+  ```
+
 ## How It Works
 
 ### Habit Types
