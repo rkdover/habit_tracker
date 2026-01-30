@@ -1,9 +1,14 @@
+
 import fs from 'fs';
 import path from 'path';
 
 export class CSVLogger {
   constructor() {
-    this.logFile = './logs.csv';
+    const dataDir = path.resolve('./data');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    this.logFile = path.join(dataDir, 'logs.csv');
     this.initLogFile();
   }
 

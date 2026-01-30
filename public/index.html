@@ -511,9 +511,16 @@
             <div class="archived-item-meta">
               <span v-if="habit.isRecurring">Every {{ habit.recurrence }} day{{ habit.recurrence > 1 ? 's' : '' }}</span>
               <span v-else>One-time task</span>
+              <div class="habit-last-done">
+                <span v-if="habit.lastCompleted">
+                  Last done {{ Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) === 0 ? 'today' : Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) + ' day' + (Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) > 1 ? 's' : '') + ' ago' }}
+                </span>
+                <span v-else>Never done</span>
+              </div>
             </div>
           </div>
           <button class="archived-item-button" @click="restoreHabit(habit.id)">Restore</button>
+          <button class="archived-item-button delete" @click="deleteHabit(habit.id)">Delete</button>
         </div>
       </div>
 
@@ -544,6 +551,12 @@
             <div class="habit-meta">
               <span v-if="habit.isRecurring">Every {{ habit.recurrence }} day{{ habit.recurrence > 1 ? 's' : '' }}</span>
               <span v-else>One-time task</span>
+              <div class="habit-last-done">
+                <span v-if="habit.lastCompleted">
+                  Last done {{ Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) === 0 ? 'today' : Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) + ' day' + (Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) > 1 ? 's' : '') + ' ago' }}
+                </span>
+                <span v-else>Never done</span>
+              </div>
             </div>
             <div class="habit-progress">
               <div class="habit-progress-bar" :style="{ width: habit.progress + '%' }"></div>

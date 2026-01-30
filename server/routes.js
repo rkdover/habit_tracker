@@ -90,9 +90,11 @@ export class HabitRoutes {
     try {
       const { id } = req.params;
       const habit = this.db.get('SELECT * FROM habits WHERE id = ?', id);
-      // Archive instead of delete
-      this.db.run('UPDATE habits SET archived = 1 WHERE id = ?', id);
-      this.logger.logArchive(id, habit.name);
+      if (!habit) {
+        return res.status(404).json({ error: 'Habit not found' });
+      }
+      this.db.run('DELETE FROM habits WHERE id = ?', id);
+      this.logger.logDelete(id, habit.name);
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: err.message });

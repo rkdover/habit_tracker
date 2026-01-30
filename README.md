@@ -88,3 +88,32 @@ All changes are logged to `logs.csv` including:
 - `PUT /api/habits/:id` - Edit habit name/recurrence
 - `POST /api/habits/:id/complete` - Mark habit as completed
 - `DELETE /api/habits/:id` - Delete a habit
+
+## Docker Deployment
+
+You can run this app in a containerized environment using Docker.
+
+### Build the Docker image
+```bash
+docker build -t habit_tracker .
+```
+
+### Run the container (default port 3000)
+```bash
+docker run -d -p 3000:3000 --name habit_tracker habit_tracker
+```
+
+### Run on a custom port (e.g. 8080)
+```bash
+docker run -d -p 8080:8080 -e PORT=8080 --name habit_tracker habit_tracker
+```
+
+### Run with persistent data (recommended)
+To keep your database and logs between container runs, mount a local folder (e.g. `./data`) to `/app/data` in the container:
+```bash
+docker run -d -p 3000:3000 -v $(pwd)/data:/app/data --name habit_tracker habit_tracker
+```
+- Your SQLite database and logs will be stored in the `data/` folder on your host machine.
+- You can change the port and volume path as needed.
+
+> **Note:** Do not mount the entire `/app` directory, only `/app/data` for persistence.

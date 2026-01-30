@@ -1,8 +1,15 @@
+
 import BetterSqlite3 from 'better-sqlite3';
+import fs from 'fs';
+import path from 'path';
 
 export class Database {
   constructor() {
-    this.db = new BetterSqlite3('./habits.db');
+    const dataDir = path.resolve('./data');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    this.db = new BetterSqlite3(path.join(dataDir, 'habits.db'));
     this.db.pragma('journal_mode = WAL');
     this.init();
   }
