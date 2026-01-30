@@ -1,9 +1,13 @@
-node_modules
+node_modules/
+data/
 *.db
+.DS_Store
+*.log
+dist/
+.env
 *.db-wal
 *.db-shm
-logs.csv
-.DS_Store
+*.csv
 .git
 .gitignore
 README.md
