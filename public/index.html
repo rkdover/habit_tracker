@@ -833,7 +833,7 @@
               <span v-else>One-time task</span>
               <div class="habit-last-done">
                 <span v-if="habit.lastCompleted">
-                  Last done {{ Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) === 0 ? 'yesterday' : Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24))+1 + ' day' + (Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) > 1 ? 's' : '') + ' ago' }}
+                  Last done {{ Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) === 0 ? 'yesterday' : Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) + ' day' + (Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) > 1 ? 's' : '') + ' ago' }}
                 </span>
                 <span v-else>Never done</span>
               </div>
