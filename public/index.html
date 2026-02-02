@@ -884,7 +884,7 @@
         const editingId = ref(null);
         const editingName = ref('');
         const editingRecurrence = ref(1);
-        const darkMode = ref(false);
+        const darkMode = ref(true);
 
         const displayedHabits = computed(() => {
           return habits.value.filter(h => h.archived === (showArchived.value ? 1 : 0));
