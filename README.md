@@ -2,6 +2,8 @@
 
 A simple full-stack web application for tracking daily habits with visual feedback and detailed logging.
 
+99% vibecoded. Shoutout to demon tech!
+
 ## Features
 
 - **Add Habits**: Create new habits with custom recurrence (in days)
