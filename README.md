@@ -91,29 +91,36 @@ All changes are logged to `logs.csv` including:
 
 ## Docker Deployment
 
-You can run this app in a containerized environment using Docker.
+You can run this app in a containerized environment using Docker. A pre-built image is available from GitHub Container Registry.
 
-### Build the Docker image
+### Pull the image from GitHub Container Registry
 ```bash
-docker build -t habit_tracker .
+docker pull ghcr.io/rkdover/habit_tracker:latest
 ```
 
 ### Run the container (default port 3000)
 ```bash
-docker run -d -p 3000:3000 --name habit_tracker habit_tracker
+docker run -d -p 3000:3000 --name habit_tracker ghcr.io/rkdover/habit_tracker:latest
 ```
 
 ### Run on a custom port (e.g. 8080)
 ```bash
-docker run -d -p 8080:8080 -e PORT=8080 --name habit_tracker habit_tracker
+docker run -d -p 8080:8080 -e PORT=8080 --name habit_tracker ghcr.io/rkdover/habit_tracker:latest
 ```
 
 ### Run with persistent data (recommended)
 To keep your database and logs between container runs, mount a local folder (e.g. `./data`) to `/app/data` in the container:
 ```bash
-docker run -d -p 3000:3000 -v $(pwd)/data:/app/data --name habit_tracker habit_tracker
+docker run -d -p 3000:3000 -v $(pwd)/data:/app/data --name habit_tracker ghcr.io/rkdover/habit_tracker:latest
 ```
 - Your SQLite database and logs will be stored in the `data/` folder on your host machine.
 - You can change the port and volume path as needed.
 
 > **Note:** Do not mount the entire `/app` directory, only `/app/data` for persistence.
+
+### Building locally (optional)
+If you prefer to build the image yourself:
+```bash
+docker build -t habit_tracker .
+docker run -d -p 3000:3000 -v $(pwd)/data:/app/data --name habit_tracker habit_tracker
+```
