@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Habit Tracker</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script>
+    // Invert logic: apply light mode only if dark mode is explicitly disabled
+    (function() {
+      const darkMode = localStorage.getItem('darkMode');
+      if (darkMode === 'false') {
+        document.documentElement.classList.add('light-mode');
+      }
+    })();
+  </script>
   <style>
     * {
       margin: 0;
@@ -12,9 +21,19 @@
       box-sizing: border-box;
     }
 
+    /* Hide uncompiled Vue templates */
+    [v-cloak] {
+      display: none;
+    }
+
+    /* Default to dark mode */
+    html {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: transparent;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -22,13 +41,86 @@
       padding: 20px;
     }
 
-    #app {
-      width: 100%;
-      max-width: 1000px;
+    /* Light mode overrides */
+    html.light-mode {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
-    .container {
+    html.light-mode .container {
       background: white;
+      color: #333;
+    }
+
+    html.light-mode h1 {
+      color: #333;
+    }
+
+    html.light-mode .tab-button {
+      background: #f0f0f0;
+      border-color: #ddd;
+      color: #333;
+    }
+
+    html.light-mode .tab-button.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    html.light-mode .add-habit-form input {
+      background: white;
+      border-color: #ddd;
+      color: #333;
+    }
+
+    html.light-mode .add-habit-form input::placeholder {
+      color: #999;
+    }
+
+    html.light-mode .habit-card {
+      background: white;
+      color: #333;
+    }
+
+    html.light-mode .habit-card.due {
+      background: #ff4757;
+      color: white;
+    }
+
+    html.light-mode .habit-card.done {
+      background: #51cf66;
+      color: white;
+    }
+
+    html.light-mode .empty-state {
+      color: #999;
+    }
+
+    html.light-mode .archived-item {
+      background: #f9f9f9;
+      border-color: #ddd;
+    }
+
+    html.light-mode .archived-item-name {
+      color: #333;
+    }
+
+    html.light-mode .archived-item-meta {
+      color: #666;
+    }
+
+    html.light-mode .dark-mode-toggle {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    html.light-mode .dark-mode-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Base styles (dark mode) */
+    .container {
+      background: #0f3460;
+      color: #e8e8e8;
       border-radius: 16px;
       padding: 40px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -38,15 +130,103 @@
       max-height: 100vh;
     }
 
+    h1 {
+      color: #e8e8e8;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      background: #1a1a2e;
+      border: 2px solid #2a2a3e;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      color: #e8e8e8;
+    }
+
+    .tab-button.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .add-habit-form input {
+      flex: 1;
+      min-width: 150px;
+      padding: 12px;
+      border: 2px solid #2a2a3e;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+      background: #1a1a2e;
+      color: #e8e8e8;
+    }
+
+    .add-habit-form input::placeholder {
+      color: #888;
+    }
+
+    .habit-card {
+      background: #1a1a2e;
+      color: #e8e8e8;
+    }
+
+    .habit-card.due {
+      background: #ff4757;
+      color: white;
+    }
+
+    .habit-card.done {
+      background: #51cf66;
+      color: white;
+    }
+
+    .empty-state {
+      color: #888;
+    }
+
+    .archived-item {
+      background: #1a1a2e;
+      border-color: #2a2a3e;
+    }
+
+    .archived-item-name {
+      color: #e8e8e8;
+    }
+
+    .archived-item-meta {
+      color: #aaa;
+    }
+
+    .dark-mode-toggle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.3s;
+    }
+
+    .dark-mode-toggle:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    #app {
+      width: 100%;
+      max-width: 1000px;
+    }
+
     .header {
       margin-bottom: 30px;
       text-align: center;
-    }
-
-    h1 {
-      color: #333;
-      font-size: 32px;
-      margin-bottom: 10px;
+      position: relative;
     }
 
     .tabs {
@@ -56,38 +236,12 @@
       justify-content: center;
     }
 
-    .tab-button {
-      padding: 10px 20px;
-      background: #f0f0f0;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-
-    .tab-button.active {
-      background: #667eea;
-      color: white;
-      border-color: #667eea;
-    }
-
     .add-habit-form {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
       margin-top: 10px;
       flex-wrap: wrap;
-    }
-
-    .add-habit-form input {
-      flex: 1;
-      min-width: 150px;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.3s;
     }
 
     .add-habit-form input:focus {
@@ -183,14 +337,14 @@
     }
 
     .habit-card.due {
-      background: #ff6b6b;
+      background: #ff4757;
       color: white;
     }
 
     .habit-card.due:hover {
-      background: #ff5252;
+      background: #ee3344;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
+      box-shadow: 0 6px 16px rgba(255, 71, 87, 0.3);
     }
 
     .habit-card.done {
@@ -264,9 +418,8 @@
 
     .habit-progress-bar {
       height: 100%;
-      background: #e74c3c;
       width: 0%;
-      transition: width 0.3s;
+      transition: width 0.3s, background-color 0.3s;
     }
 
     .habit-delete {
@@ -452,9 +605,10 @@
   </style>
 </head>
 <body>
-  <div id="app">
+  <div id="app" v-cloak>
     <div class="container">
       <div class="header">
+        <button class="dark-mode-toggle" @click="toggleDarkMode" title="Toggle dark mode">{{ darkMode ? '☀️' : '🌙' }}</button>
         <h1>🎯 Habit Tracker</h1>
         
         <div class="tabs">
@@ -559,7 +713,7 @@
               </div>
             </div>
             <div class="habit-progress">
-              <div class="habit-progress-bar" :style="{ width: habit.progress + '%' }"></div>
+              <div class="habit-progress-bar" :style="{ width: habit.progress + '%', backgroundColor: getProgressColor(habit) }"></div>
             </div>
           </div>
 
@@ -604,6 +758,7 @@
         const editingId = ref(null);
         const editingName = ref('');
         const editingRecurrence = ref(1);
+        const darkMode = ref(false);
 
         const displayedHabits = computed(() => {
           return habits.value.filter(h => h.archived === (showArchived.value ? 1 : 0));
@@ -615,6 +770,29 @@
 
         const notifiedHabits = ref(new Set());
         const lastCompletedTime = ref(new Map()); // Track last completion time for debouncing
+
+        const toggleDarkMode = () => {
+          darkMode.value = !darkMode.value;
+          if (darkMode.value) {
+            // Dark mode: remove light-mode class
+            document.documentElement.classList.remove('light-mode');
+            localStorage.setItem('darkMode', 'true');
+          } else {
+            // Light mode: add light-mode class
+            document.documentElement.classList.add('light-mode');
+            localStorage.setItem('darkMode', 'false');
+          }
+        };
+
+        // Load dark mode preference from localStorage
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'false') {
+          darkMode.value = false;
+          document.documentElement.classList.add('light-mode');
+        } else {
+          // Default to dark mode (null or 'true')
+          darkMode.value = true;
+        }
 
         const requestNotificationPermission = async () => {
           if ('Notification' in window) {
@@ -796,6 +974,32 @@
           editingId.value = null;
         };
 
+        const getProgressColor = (habit) => {
+          // Check if we're on the due date
+          if (habit.lastCompleted) {
+            const dueTimestamp = habit.lastCompleted + (habit.recurrence * 24 * 60 * 60 * 1000);
+            const dueDate = new Date(dueTimestamp).toDateString();
+            const currentDate = new Date().toDateString();
+            
+            // If we're on the due date, use red
+            if (currentDate === dueDate) {
+              return 'rgb(255, 71, 87)'; // Due card red
+            }
+          }
+          
+          // Otherwise, transition from yellowish-green to red based on progress
+          const progress = Math.min(habit.progress, 100);
+          const percentage = progress / 100;
+          
+          // Yellowish-green: rgb(154, 205, 50)
+          // Due red: rgb(255, 71, 87)
+          const r = Math.round(154 + (255 - 154) * percentage);
+          const g = Math.round(205 + (71 - 205) * percentage);
+          const b = Math.round(50 + (87 - 50) * percentage);
+          
+          return `rgb(${r}, ${g}, ${b})`;
+        };
+
         const getTimeRemaining = (habit) => {
           if (habit.progress >= 100) {
             return 'Due now';
@@ -830,6 +1034,7 @@
           editingId,
           editingName,
           editingRecurrence,
+          darkMode,
           addHabit,
           completeHabit,
           archiveHabit,
@@ -838,7 +1043,9 @@
           startEdit,
           saveEdit,
           cancelEdit,
-          getTimeRemaining
+          getTimeRemaining,
+          getProgressColor,
+          toggleDarkMode
         };
       }
     }).mount('#app');
