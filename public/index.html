@@ -792,10 +792,7 @@
               <span v-if="habit.isRecurring">Every {{ habit.recurrence }} day{{ habit.recurrence > 1 ? 's' : '' }}</span>
               <span v-else>One-time task</span>
               <div class="habit-last-done">
-                <span v-if="habit.lastCompleted">
-                  Last done {{ Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) === 0 ? 'today' : Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) + ' day' + (Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) > 1 ? 's' : '') + ' ago' }}
-                </span>
-                <span v-else>Never done</span>
+                Last done {{ getLastDoneText(habit.lastCompleted) }}
               </div>
             </div>
           </div>
@@ -832,10 +829,7 @@
               <span v-if="habit.isRecurring">Every {{ habit.recurrence }} day{{ habit.recurrence > 1 ? 's' : '' }}</span>
               <span v-else>One-time task</span>
               <div class="habit-last-done">
-                <span v-if="habit.lastCompleted">
-                  Last done {{ Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) === 0 ? 'yesterday' : Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) + ' day' + (Math.floor((Date.now() - habit.lastCompleted) / (1000 * 60 * 60 * 24)) > 1 ? 's' : '') + ' ago' }}
-                </span>
-                <span v-else>Never done</span>
+                Last done {{ getLastDoneText(habit.lastCompleted) }}
               </div>
             </div>
             <div class="habit-progress">
@@ -1100,6 +1094,30 @@
           editingId.value = null;
         };
 
+        const getLastDoneText = (lastCompleted) => {
+          if (!lastCompleted) return 'Never done';
+          
+          // Helper to get "day" adjusted for 4 AM cutoff
+          const getDayWithCutoff = (timestamp) => {
+            const date = new Date(timestamp);
+            // If before 4 AM, consider it part of the previous day
+            if (date.getHours() < 4) {
+              date.setDate(date.getDate() - 1);
+            }
+            date.setHours(0, 0, 0, 0);
+            return date.getTime();
+          };
+          
+          const completedDay = getDayWithCutoff(lastCompleted);
+          const todayDay = getDayWithCutoff(Date.now());
+          
+          const daysDiff = Math.floor((todayDay - completedDay) / (1000 * 60 * 60 * 24));
+          
+          if (daysDiff === 0) return 'today';
+          if (daysDiff === 1) return 'yesterday';
+          return `${daysDiff} days ago`;
+        };
+
         const getProgressColor = (habit) => {
           // Determine which colors to use based on theme
           const isDarkMode = darkMode.value;
@@ -1179,6 +1197,7 @@
           cancelEdit,
           getTimeRemaining,
           getProgressColor,
+          getLastDoneText,
           toggleDarkMode
         };
       }
