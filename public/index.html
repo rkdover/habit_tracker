@@ -1097,21 +1097,18 @@
         const getLastDoneText = (lastCompleted) => {
           if (!lastCompleted) return 'Never done';
           
-          // Helper to get "day" adjusted for 4 AM cutoff
-          const getDayWithCutoff = (timestamp) => {
-            const date = new Date(timestamp);
-            // If before 4 AM, consider it part of the previous day
-            if (date.getHours() < 4) {
-              date.setDate(date.getDate() - 1);
-            }
-            date.setHours(0, 0, 0, 0);
-            return date.getTime();
-          };
+          // Subtract 4 hours from both timestamps to shift the day boundary
+          const adjustedCompleted = lastCompleted - (4 * 60 * 60 * 1000);
+          const adjustedNow = Date.now() - (4 * 60 * 60 * 1000);
           
-          const completedDay = getDayWithCutoff(lastCompleted);
-          const todayDay = getDayWithCutoff(Date.now());
+          // Get the calendar day for each (normalized to midnight)
+          const completedDate = new Date(adjustedCompleted);
+          const nowDate = new Date(adjustedNow);
           
-          const daysDiff = Math.floor((todayDay - completedDay) / (1000 * 60 * 60 * 24));
+          completedDate.setHours(0, 0, 0, 0);
+          nowDate.setHours(0, 0, 0, 0);
+          
+          const daysDiff = Math.round((nowDate - completedDate) / (1000 * 60 * 60 * 24));
           
           if (daysDiff === 0) return 'today';
           if (daysDiff === 1) return 'yesterday';
